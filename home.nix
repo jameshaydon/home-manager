@@ -141,6 +141,9 @@
 
         # NOTE: ghcup:
         export PATH="$PATH:$HOME/.ghcup/bin"
+
+        # NOTE: cabal executables:
+        export PATH="$PATH:$HOME/.cabal/bin"
         '';
     };
 
