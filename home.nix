@@ -141,6 +141,7 @@
 
         # NOTE: ghcup:
         export PATH="$PATH:$HOME/.ghcup/bin"
+        [ -f "/Users/james/.ghcup/env" ] && . "/Users/james/.ghcup/env" # ghcup-env
 
         # NOTE: cabal executables:
         export PATH="$PATH:$HOME/.cabal/bin"
