@@ -1,5 +1,5 @@
 {
-  description = "Home Manager configuration of jameshaydon";
+  description = "Home Manager configuration of james";
 
   inputs = {
     # Specify the source of Home Manager and Nixpkgs.
@@ -15,7 +15,7 @@
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
     in {
-      homeConfigurations."jameshaydon" = home-manager.lib.homeManagerConfiguration {
+      homeConfigurations."james" = home-manager.lib.homeManagerConfiguration {
         inherit pkgs;
 
         # Specify your home configuration modules here, for example,
