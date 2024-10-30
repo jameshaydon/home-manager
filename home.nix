@@ -45,6 +45,8 @@
     pkgs.jq
     pkgs.sqlite
     pkgs.nodePackages.serve
+    pkgs.gh
+    pkgs.tree
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -110,6 +112,10 @@
       };
       initExtra =
         ''
+        # Locale.
+        LC_CTYPE=en_US.UTF-8
+        LC_ALL=en_US.UTF-8
+
         # NOTE: the 'run' scipt in _this_ repo:
         export PATH="$PATH:$HOME/nix-home/bin"
 
@@ -145,6 +151,14 @@
 
         # NOTE: cabal executables:
         export PATH="$PATH:$HOME/.cabal/bin"
+
+        # NOTE: python pip stuff:
+        export PATH="$PATH:$HOME/Library/Python/3.9/bin"
+
+        # Source the API key from a separate file
+        if [ -f "$HOME/.anthropic-api-key" ]; then
+          export ANTHROPIC_API_KEY=$(cat $HOME/.anthropic-api-key)
+        fi
         '';
     };
 
