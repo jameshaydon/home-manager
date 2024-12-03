@@ -155,9 +155,14 @@
         # NOTE: python pip stuff:
         export PATH="$PATH:$HOME/Library/Python/3.9/bin"
 
-        # Source the API key from a separate file
+        # Anthropic
         if [ -f "$HOME/.anthropic-api-key" ]; then
           export ANTHROPIC_API_KEY=$(cat $HOME/.anthropic-api-key)
+        fi
+
+        # OpenAI
+        if [ -f "$HOME/.openai-api-key" ]; then
+          export OPENAI_API_KEY=$(cat $HOME/.openai-api-key)
         fi
         '';
     };
