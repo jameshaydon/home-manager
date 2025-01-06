@@ -13,7 +13,9 @@
   # You should not change this value, even if you update Home Manager. If you do
   # want to update the value, then make sure to first check the Home Manager
   # release notes.
-  home.stateVersion = "24.05"; # Please read the comment before changing.
+  home.stateVersion = "25.05"; # Please read the comment before changing.
+
+  nixpkgs.config.allowUnfree = true;
 
   # The home.packages option allows you to install Nix packages into your
   # environment.
@@ -37,16 +39,24 @@
 
     pkgs.just
     pkgs.gitAndTools.delta
-    pkgs.z3
+    # pkgs.z3
     pkgs.nodejs
-    pkgs.nodePackages.pnpm
+    # pkgs.nodePackages.pnpm
     pkgs.ripgrep
     pkgs.yt-dlp
     pkgs.jq
     pkgs.sqlite
-    pkgs.nodePackages.serve
+    # pkgs.nodePackages.serve
     pkgs.gh
     pkgs.tree
+
+    # Spellchecking stuff:
+    # pkgs.enchant # We use the enchant spell-checking library.
+    # pkgs.hunspell # The enchant library uses the hunspell backend.
+    # pkgs.hunspellDicts.en_US
+    # pkgs.hunspellDicts.fr-moderne
+    # pkgs.emacsPackages.jinx
+    (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
