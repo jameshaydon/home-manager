@@ -46,17 +46,17 @@
     pkgs.yt-dlp
     pkgs.jq
     pkgs.sqlite
-    # pkgs.nodePackages.serve
+    pkgs.nodePackages.serve
     pkgs.gh
     pkgs.tree
 
     # Spellchecking stuff:
-    # pkgs.enchant # We use the enchant spell-checking library.
-    # pkgs.hunspell # The enchant library uses the hunspell backend.
-    # pkgs.hunspellDicts.en_US
-    # pkgs.hunspellDicts.fr-moderne
-    # pkgs.emacsPackages.jinx
-    (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
+    pkgs.enchant # We use the enchant spell-checking library.
+    pkgs.hunspell # The enchant library uses the hunspell backend.
+    pkgs.hunspellDicts.en_US
+    pkgs.hunspellDicts.fr-moderne
+    pkgs.emacsPackages.jinx
+    # (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -91,7 +91,7 @@
   #  /etc/profiles/per-user/jameshaydon/etc/profile.d/hm-session-vars.sh
   #
   home.sessionVariables = {
-    # EDITOR = "emacs";
+    EDITOR = "emacs";
   };
 
   # Let Home Manager install and manage itself.
