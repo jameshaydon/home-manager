@@ -50,6 +50,8 @@
     pkgs.gh
     pkgs.tree
 
+    pkgs.idris2
+
     # Spellchecking stuff:
     pkgs.enchant # We use the enchant spell-checking library.
     pkgs.hunspell # The enchant library uses the hunspell backend.
