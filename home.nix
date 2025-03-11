@@ -52,12 +52,13 @@
 
     pkgs.idris2
 
+    pkgs.ffmpeg
+
     # Spellchecking stuff:
     pkgs.enchant # We use the enchant spell-checking library.
     pkgs.hunspell # The enchant library uses the hunspell backend.
     pkgs.hunspellDicts.en_US
     pkgs.hunspellDicts.fr-moderne
-    pkgs.emacsPackages.jinx
     # (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   ];
 
@@ -113,9 +114,7 @@
       shellAliases = {
         hm = "run home-manager";
         # ls = "exa";
-        si = "stack install --fast --ghc-options \"-j4 +RTS -A128m -n2m -qg -RTS\"";
         cf = "cabal --ghc-options=\"-j4 +RTS -A128m -n2m -qg -RTS\" --disable-optimization --disable-library-vanilla --enable-executable-dynamic";
-        cnf = "cabal --enable-nix --ghc-options=\"-j4 +RTS -A128m -n2m -qg -RTS\" --disable-optimization --disable-library-vanilla --enable-executable-dynamic";
       };
       oh-my-zsh = {
         enable = true;
@@ -175,6 +174,11 @@
         # OpenAI
         if [ -f "$HOME/.openai-api-key" ]; then
           export OPENAI_API_KEY=$(cat $HOME/.openai-api-key)
+        fi
+
+        # OpenRouter
+        if [ -f "$HOME/.openrouter-api-key" ]; then
+          export OPENROUTER_API_KEY=$(cat $HOME/.openrouter-api-key)
         fi
         '';
     };
