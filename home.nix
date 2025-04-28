@@ -38,6 +38,7 @@
     # '')
 
     pkgs.just
+    pkgs.fd
     pkgs.gitAndTools.delta
     # pkgs.z3
     pkgs.nodejs
@@ -55,11 +56,11 @@
     pkgs.ffmpeg
 
     # Spellchecking stuff:
-    pkgs.enchant # We use the enchant spell-checking library.
-    pkgs.hunspell # The enchant library uses the hunspell backend.
-    pkgs.hunspellDicts.en_US
-    pkgs.hunspellDicts.fr-moderne
-    # (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
+    # pkgs.enchant # We use the enchant spell-checking library.
+    # pkgs.hunspell # The enchant library uses the hunspell backend.
+    # pkgs.hunspellDicts.en_US
+    # pkgs.hunspellDicts.fr-moderne
+    (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -121,7 +122,7 @@
         theme = "robbyrussell";
         plugins=["git" "macos" "brew" "fzf" "direnv"];
       };
-      initExtra =
+      initContent =
         ''
         # Locale.
         LC_CTYPE=en_US.UTF-8
