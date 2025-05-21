@@ -174,7 +174,7 @@
 
         # OpenAI
         if [ -f "$HOME/.openai-api-key" ]; then
-          export OPENAI_API_KEY=$(cat $HOME/.openai-api-key)
+          export OPENAI_KEY=$(cat $HOME/.openai-api-key)
         fi
 
         # OpenRouter
