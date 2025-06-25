@@ -61,6 +61,8 @@
     # pkgs.hunspellDicts.en_US
     # pkgs.hunspellDicts.fr-moderne
     (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
+
+    pkgs.google-cloud-sdk
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -180,6 +182,11 @@
         # OpenRouter
         if [ -f "$HOME/.openrouter-api-key" ]; then
           export OPENROUTER_API_KEY=$(cat $HOME/.openrouter-api-key)
+        fi
+
+        # Gemini
+        if [ -f "$HOME/.gemini-api-key" ]; then
+          export GEMINI_API_KEY=$(cat $HOME/.gemini-api-key)
         fi
         '';
     };
