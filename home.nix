@@ -55,6 +55,8 @@
 
     pkgs.ffmpeg
 
+    pkgs.aider-chat
+
     # Spellchecking stuff:
     # pkgs.enchant # We use the enchant spell-checking library.
     # pkgs.hunspell # The enchant library uses the hunspell backend.
@@ -63,6 +65,7 @@
     (pkgs.aspellWithDicts (dicts: with dicts; [ en en-computers en-science ]))
 
     pkgs.google-cloud-sdk
+    pkgs.crane
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -177,6 +180,7 @@
         # OpenAI
         if [ -f "$HOME/.openai-api-key" ]; then
           export OPENAI_KEY=$(cat $HOME/.openai-api-key)
+          export OPENAI_API_KEY=$(cat $HOME/.openai-api-key)
         fi
 
         # OpenRouter
