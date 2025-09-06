@@ -47,7 +47,9 @@
     pkgs.yt-dlp
     pkgs.jq
     pkgs.sqlite
-    pkgs.nodePackages.serve
+
+    # A simple util to serve a dir as a website
+    # pkgs.nodePackages.serve
     pkgs.gh
     pkgs.tree
 
