@@ -57,7 +57,8 @@
 
     pkgs.ffmpeg
 
-    pkgs.aider-chat
+    # pkgs.aider-chat
+    pkgs.claude-code
 
     # Spellchecking stuff:
     # pkgs.enchant # We use the enchant spell-checking library.
@@ -68,6 +69,8 @@
 
     pkgs.google-cloud-sdk
     pkgs.crane
+
+    pkgs.emacs-lsp-booster
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
