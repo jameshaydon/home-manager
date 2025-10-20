@@ -53,7 +53,7 @@
     pkgs.gh
     pkgs.tree
 
-    pkgs.idris2
+    # pkgs.idris2
 
     pkgs.ffmpeg
 
@@ -71,6 +71,8 @@
     pkgs.crane
 
     pkgs.emacs-lsp-booster
+
+    pkgs.rclone
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -212,8 +214,8 @@
 
     git = {
       enable = true;
-      userName = "James Henri Haydon";
-      userEmail = "james.haydon@gmail.com";
+      settings.user.name = "James Henri Haydon";
+      settings.user.email = "james.haydon@gmail.com";
       ignores = [
         ".DS_Store"
         "**/.DS_Store"
@@ -222,8 +224,10 @@
         "*.niu"
         ".local"
       ];
-      aliases = {};
-      extraConfig = {
+      settings.alias = {
+        emacs = "emacs -nw";
+      };
+      settings = {
         color.diff-highlight.oldNormal = "red bold";
         color.diff-highlight.oldHighlight = "red bold 52";
         color.diff-highlight.newNormal = "green bold";
