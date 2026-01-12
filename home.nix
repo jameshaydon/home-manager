@@ -39,7 +39,7 @@
 
     pkgs.just
     pkgs.fd
-    pkgs.gitAndTools.delta
+    pkgs.delta
     # pkgs.z3
     pkgs.nodejs
     # pkgs.nodePackages.pnpm
@@ -59,6 +59,8 @@
 
     # pkgs.aider-chat
     pkgs.claude-code
+    pkgs.gemini-cli
+    pkgs.claude-code-acp
 
     # Spellchecking stuff:
     # pkgs.enchant # We use the enchant spell-checking library.
@@ -73,6 +75,8 @@
     pkgs.emacs-lsp-booster
 
     pkgs.rclone
+
+    pkgs.cachix    
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
@@ -113,7 +117,11 @@
   # Let Home Manager install and manage itself.
   programs.home-manager.enable = true;
 
-  programs = {
+  home.file.".aspell.conf".text = ''
+    lang en_GB
+  '';
+
+  programs = {    
     direnv = {
       enable = true;
       enableBashIntegration = true;
@@ -223,6 +231,7 @@
         ".LSOverride"
         "*.niu"
         ".local"
+        "jhh_*/"
       ];
       settings.alias = {
         emacs = "emacs -nw";
@@ -261,6 +270,7 @@
         delta.whitespace-error-style = "22 reverse";
         core.pager = "delta";
         interactive.diffFilter = "delta --color-only";
+        push.autoSetupRemote = "true";
       };
     };
   };
