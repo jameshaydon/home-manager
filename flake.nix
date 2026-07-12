@@ -10,9 +10,13 @@
     };
     emacs-lsp-booster.url = "github:slotThe/emacs-lsp-booster-flake";
     emacs-lsp-booster.inputs.nixpkgs.follows = "nixpkgs";
+    gws = {
+      url = "github:googleworkspace/cli";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = { nixpkgs, home-manager, emacs-lsp-booster, ... }:
+  outputs = { nixpkgs, home-manager, emacs-lsp-booster, gws, ... }:
     let
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -30,6 +34,7 @@
         modules = [
           ./home.nix
           my-overlays
+          { home.packages = [ gws.packages.${system}.gws ]; }
         ];
 
         # Optionally use extraSpecialArgs
