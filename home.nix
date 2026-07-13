@@ -233,7 +233,6 @@ in
         fi
       '';
       shellAliases = {
-        hm = "run home-manager";
         # ls = "exa";
         cf = "cabal --ghc-options=\"-j4 +RTS -A128m -n2m -qg -RTS\" --disable-optimization --disable-library-vanilla --enable-executable-dynamic";
       };
@@ -247,9 +246,6 @@ in
         # Locale.
         LC_CTYPE=en_US.UTF-8
         LC_ALL=en_US.UTF-8
-
-        # NOTE: the 'run' scipt in _this_ repo:
-        export PATH="$PATH:$HOME/nix-home/bin"
 
         # NOTE: this is used by vterm in emacs:
         vterm_printf(){
@@ -274,15 +270,9 @@ in
         # NOTE: locally installed npm modules
         export PATH="$PATH:./node_modules/.bin"
 
-        # NOTE: where brew cask installs latex
-        export PATH="$PATH:/Library/TeX/texbin"
-
         # NOTE: ghcup:
         export PATH="$PATH:$HOME/.ghcup/bin"
         [ -f "/Users/james/.ghcup/env" ] && . "/Users/james/.ghcup/env" # ghcup-env
-
-        # NOTE: cabal executables:
-        export PATH="$PATH:$HOME/.cabal/bin"
 
         # NOTE: python pip stuff:
         export PATH="$PATH:$HOME/Library/Python/3.9/bin"
