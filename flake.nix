@@ -14,9 +14,22 @@
       url = "github:googleworkspace/cli";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+    claude-agent-acp = {
+      url = "github:agentclientprotocol/claude-agent-acp/v0.58.1";
+      flake = false;
+    };
+    codex-acp = {
+      url = "github:agentclientprotocol/codex-acp/v1.1.2";
+      flake = false;
+    };
+    pi-acp = {
+      url = "github:svkozak/pi-acp/v0.0.31";
+      flake = false;
+    };
   };
 
-  outputs = { nixpkgs, home-manager, emacs-lsp-booster, gws, ... }:
+  outputs =
+    { nixpkgs, home-manager, emacs-lsp-booster, gws, claude-agent-acp, codex-acp, pi-acp, ... }:
     let
       system = "aarch64-darwin";
       pkgs = nixpkgs.legacyPackages.${system};
@@ -37,8 +50,11 @@
           { home.packages = [ gws.packages.${system}.gws ]; }
         ];
 
-        # Optionally use extraSpecialArgs
-        # to pass through arguments to home.nix
+        extraSpecialArgs.agentSources = {
+          claude = claude-agent-acp;
+          codex = codex-acp;
+          pi = pi-acp;
+        };
       };
     };
 }

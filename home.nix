@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, agentSources, ... }:
 
 let
   heyCli = (pkgs.buildGoModule.override { go = pkgs.go_1_26; }) {
@@ -20,6 +20,59 @@ let
       description = "CLI and TUI for HEY email";
       homepage = "https://github.com/basecamp/hey-cli";
       license = pkgs.lib.licenses.mit;
+    };
+  };
+
+  buildNpmAgent = attrs:
+    let
+      package = builtins.fromJSON (builtins.readFile "${attrs.src}/package.json");
+    in
+    pkgs.buildNpmPackage (attrs // {
+      inherit (package) version;
+      npmDeps = pkgs.importNpmLock { npmRoot = attrs.src; };
+      npmConfigHook = pkgs.importNpmLock.npmConfigHook;
+    });
+
+  claudeAgentAcp = buildNpmAgent {
+    pname = "claude-agent-acp";
+    src = agentSources.claude;
+
+    nativeBuildInputs = [ pkgs.makeWrapper ];
+
+    postInstall = ''
+      wrapProgram $out/bin/claude-agent-acp \
+        --set-default CLAUDE_CODE_EXECUTABLE ${pkgs.lib.getExe pkgs.claude-code}
+    '';
+
+    meta = {
+      description = "ACP adapter for Claude Agent SDK";
+      homepage = "https://github.com/agentclientprotocol/claude-agent-acp";
+      license = pkgs.lib.licenses.asl20;
+      mainProgram = "claude-agent-acp";
+    };
+  };
+
+  codexAcp = buildNpmAgent {
+    pname = "codex-acp";
+    src = agentSources.codex;
+
+    meta = {
+      description = "ACP adapter for Codex CLI";
+      homepage = "https://github.com/agentclientprotocol/codex-acp";
+      license = pkgs.lib.licenses.asl20;
+      mainProgram = "codex-acp";
+    };
+  };
+
+  piAcp = buildNpmAgent {
+    pname = "pi-acp";
+    src = agentSources.pi;
+
+    meta = {
+      description = "ACP adapter for Pi coding agent";
+      homepage = "https://github.com/svkozak/pi-acp";
+      license = pkgs.lib.licenses.mit;
+      mainProgram = "pi-acp";
     };
   };
 in
@@ -90,10 +143,11 @@ in
     pkgs.claude-code
     pkgs.gemini-cli
     # pkgs.codex        
-    pkgs.claude-agent-acp
-    pkgs.codex-acp
-
     pkgs.pi-coding-agent
+
+    claudeAgentAcp
+    codexAcp
+    piAcp
 
     # Spellchecking stuff:
     # pkgs.enchant # We use the enchant spell-checking library.

@@ -1,5 +1,39 @@
 {
   "nodes": {
+    "claude-agent-acp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783599570,
+        "narHash": "sha256-9bnUVYfE3iMOcHFg9PK25MoMla978/YbkZLzWgVkd84=",
+        "owner": "agentclientprotocol",
+        "repo": "claude-agent-acp",
+        "rev": "3500ef736ffe816ab5b01c0c20669015fb4cf8b7",
+        "type": "github"
+      },
+      "original": {
+        "owner": "agentclientprotocol",
+        "ref": "v0.58.1",
+        "repo": "claude-agent-acp",
+        "type": "github"
+      }
+    },
+    "codex-acp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1783619208,
+        "narHash": "sha256-XN65SdHfuHoRwQUIXYFZXR++QzW7+rNUps2kY4a4JQ4=",
+        "owner": "agentclientprotocol",
+        "repo": "codex-acp",
+        "rev": "8aff492d4b033ff2c02ad3b9d591994d57617463",
+        "type": "github"
+      },
+      "original": {
+        "owner": "agentclientprotocol",
+        "ref": "v1.1.2",
+        "repo": "codex-acp",
+        "type": "github"
+      }
+    },
     "emacs-lsp-booster": {
       "inputs": {
         "nixpkgs": [
@@ -95,12 +129,32 @@
         "type": "github"
       }
     },
+    "pi-acp": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1781737884,
+        "narHash": "sha256-bM3V/3fxkY2Ib+OyfT82StIIRSLXGDuYUbt1CZKpTuo=",
+        "owner": "svkozak",
+        "repo": "pi-acp",
+        "rev": "9e857dcc05a057404eb1537e5f31e5aef88a5863",
+        "type": "github"
+      },
+      "original": {
+        "owner": "svkozak",
+        "ref": "v0.0.31",
+        "repo": "pi-acp",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
+        "claude-agent-acp": "claude-agent-acp",
+        "codex-acp": "codex-acp",
         "emacs-lsp-booster": "emacs-lsp-booster",
         "gws": "gws",
         "home-manager": "home-manager",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "pi-acp": "pi-acp"
       }
     },
     "systems": {
