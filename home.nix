@@ -624,6 +624,7 @@ in
         "**/.DS_Store"
         ".AppleDouble"
         ".LSOverride"
+        ".direnv"
         "*.niu"
         ".local"
         "jhh"
