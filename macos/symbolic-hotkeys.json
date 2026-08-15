@@ -1,0 +1,56 @@
+{
+  "AppleSymbolicHotKeys": {
+    "15": { "enabled": false },
+    "16": { "enabled": false },
+    "17": { "enabled": false },
+    "18": { "enabled": false },
+    "19": { "enabled": false },
+    "20": { "enabled": false },
+    "21": { "enabled": false },
+    "22": { "enabled": false },
+    "23": { "enabled": false },
+    "24": { "enabled": false },
+    "25": { "enabled": false },
+    "26": { "enabled": false },
+    "60": {
+      "enabled": false,
+      "value": { "parameters": [32, 49, 262144], "type": "standard" }
+    },
+    "61": {
+      "enabled": true,
+      "value": { "parameters": [32, 49, 786432], "type": "standard" }
+    },
+    "79": { "enabled": true },
+    "80": { "enabled": true },
+    "81": { "enabled": true },
+    "82": { "enabled": true },
+    "159": {
+      "enabled": false,
+      "value": { "parameters": [65535, 36, 262144], "type": "standard" }
+    },
+    "164": {
+      "enabled": false,
+      "value": { "parameters": [65535, 65535, 0], "type": "standard" }
+    },
+    "233": {
+      "enabled": true,
+      "value": { "parameters": [109, 46, 1048576], "type": "standard" }
+    },
+    "235": {
+      "enabled": true,
+      "value": { "parameters": [65535, 65535, 0], "type": "standard" }
+    },
+    "237": {
+      "enabled": true,
+      "value": { "parameters": [102, 3, 786432], "type": "standard" }
+    },
+    "238": {
+      "enabled": true,
+      "value": { "parameters": [99, 8, 8650752], "type": "standard" }
+    },
+    "239": {
+      "enabled": true,
+      "value": { "parameters": [114, 15, 8650752], "type": "standard" }
+    }
+  }
+}
