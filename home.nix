@@ -23,6 +23,122 @@ let
     };
   };
 
+  worktreeLinkPrimary = pkgs.writeShellApplication {
+    name = "wt-link-primary";
+    runtimeInputs = [ pkgs.coreutils pkgs.findutils pkgs.git ];
+    text = ''
+      if (( $# < 2 )); then
+        echo "Usage: wt-link-primary PRIMARY_WORKTREE PATH..." >&2
+        exit 2
+      fi
+
+      primary=$1
+      shift
+
+      if [[ ! -d "$primary" ]]; then
+        echo "Primary worktree does not exist: $primary" >&2
+        exit 1
+      fi
+
+      has_tracked_paths() {
+        [[ -n "$(git ls-files -- "$1")" ]]
+      }
+
+      link_directory_entries() {
+        local relative=$1
+        local source=$primary/$relative
+        local destination=$PWD/$relative
+
+        while IFS= read -r -d "" entry; do
+          local name
+          local child_relative
+          local child_destination
+          name=$(basename "$entry")
+          child_relative=$relative/$name
+          child_destination=$PWD/$child_relative
+
+          if has_tracked_paths "$child_relative"; then
+            continue
+          fi
+
+          if [[ -e "$child_destination" || -L "$child_destination" ]]; then
+            continue
+          fi
+
+          ln -s "$entry" "$child_destination"
+          echo "Linked $child_relative"
+        done < <(find "$source" -mindepth 1 -maxdepth 1 -print0)
+      }
+
+      for relative in "$@"; do
+        case "$relative" in
+          ""|/*|..|../*|*/../*|*/..)
+            echo "Path must stay within the worktree: $relative" >&2
+            exit 2
+            ;;
+        esac
+
+        source=$primary/$relative
+        destination=$PWD/$relative
+
+        if [[ ! -e "$source" && ! -L "$source" ]]; then
+          continue
+        fi
+
+        if has_tracked_paths "$relative"; then
+          if [[ -d "$source" ]]; then
+            mkdir -p "$destination"
+            link_directory_entries "$relative"
+          fi
+          continue
+        fi
+
+        if [[ ! -e "$destination" && ! -L "$destination" ]]; then
+          mkdir -p "$(dirname "$destination")"
+          ln -s "$source" "$destination"
+          echo "Linked $relative"
+        elif [[ -d "$source" && -d "$destination" && ! -L "$destination" ]]; then
+          link_directory_entries "$relative"
+        fi
+      done
+    '';
+  };
+
+  wtStatusSkillDir = "${config.home.homeDirectory}/.agents/skills/wt-status";
+  wtStatusConfig = "${config.xdg.configHome}/wt-status/config.json";
+
+  wtStatusProject = path: checkName: argv: {
+    inherit path;
+    remote = "origin";
+    sync_clean_worktrees = true;
+    environment = {
+      mode = "direnv";
+      auto_allow = true;
+      bootstrap = null;
+    };
+    checks = [{
+      name = checkName;
+      inherit argv;
+      timeout_seconds = 900;
+    }];
+  };
+
+  wtStatus = pkgs.writeShellApplication {
+    name = "wt-status";
+    runtimeInputs = [
+      pkgs.python3
+      pkgs.git
+      pkgs.gh
+      pkgs.worktrunk
+      pkgs.direnv
+      pkgs.nix
+    ];
+    text = ''
+      exec python3 ${pkgs.lib.escapeShellArg "${wtStatusSkillDir}/scripts/wt_status.py"} \
+        --config ${pkgs.lib.escapeShellArg wtStatusConfig} "$@"
+    '';
+  };
+
   buildNpmAgent = attrs:
     let
       package = builtins.fromJSON (builtins.readFile "${attrs.src}/package.json");
@@ -97,6 +213,8 @@ in
   # environment.
   home.packages = [
     heyCli
+    worktreeLinkPrimary
+    wtStatus
     # # Adds the 'hello' command to your environment. It prints a friendly
     # # "Hello, world!" when run.
     # pkgs.hello
@@ -123,6 +241,7 @@ in
     # pkgs.nodePackages.pnpm
     pkgs.git
     pkgs.ripgrep
+    pkgs.pandoc
     # pkgs.yt-dlp
     pkgs.jq
     pkgs.sqlite
@@ -133,6 +252,7 @@ in
     # pkgs.nodePackages.serve
     pkgs.gh
     pkgs.tree
+    pkgs.worktrunk
 
     # pkgs.idris2
     pkgs.elan
@@ -173,6 +293,9 @@ in
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
   # plain files is through 'home.file'.
   home.file = {
+    "tuvok".source = config.lib.file.mkOutOfStoreSymlink
+      "${config.home.homeDirectory}/Library/CloudStorage/GoogleDrive-james.haydon@gmail.com/My Drive/tuvok";
+
     # # Building this configuration will create a copy of 'dotfiles/screenrc' in
     # # the Nix store. Activating the configuration will then make '~/.screenrc' a
     # # symlink to the Nix store copy.
@@ -212,6 +335,59 @@ in
     lang en_GB
   '';
 
+  home.file.".codex/wt-status.config.toml".text = ''
+    model_reasoning_effort = "low"
+    approval_policy = "never"
+    sandbox_mode = "read-only"
+    web_search = "disabled"
+  '';
+
+  xdg.configFile."wt-status/config.json".text = builtins.toJSON {
+    state_dir = "${config.xdg.stateHome}/wt-status";
+    codex = {
+      binary = "codex";
+      profile = "wt-status";
+      timeout_seconds = 600;
+      daily_token_limit = null;
+    };
+    limits = {
+      command_output_bytes = 65536;
+      diff_bytes = 524288;
+      prior_status_bytes = 65536;
+      github_json_bytes = 16777216;
+    };
+    projects = [
+      (wtStatusProject
+        "${config.home.homeDirectory}/dev/imiron-io/specforge"
+        "SpecForge API tests"
+        [ "just" "api" "test-fast" ])
+      (wtStatusProject
+        "${config.home.homeDirectory}/dev/jameshaydon/weft"
+        "Weft tests"
+        [ "just" "test" ])
+    ];
+  };
+
+  xdg.configFile."worktrunk/config.toml".text = ''
+    [[pre-start]]
+    transfer-direnv = "wt-link-primary {{ primary_worktree_path }} .envrc"
+
+    [[pre-start]]
+    allow-direnv = """
+    if test ! -f .envrc; then
+      exit 0
+    fi
+
+    primary={{ primary_worktree_path }}/.envrc
+
+    if test -f "$primary" && cmp -s .envrc "$primary"; then
+      direnv allow
+    else
+      printf '%s\\n' "Not auto-allowing .envrc: it differs from the primary worktree." >&2
+    fi
+    """
+  '';
+
   programs = {    
     direnv = {
       enable = true;
@@ -235,6 +411,7 @@ in
       shellAliases = {
         # ls = "exa";
         cf = "cabal --ghc-options=\"-j4 +RTS -A128m -n2m -qg -RTS\" --disable-optimization --disable-library-vanilla --enable-executable-dynamic";
+        w = "wt switch --branches --remotes --prs";
       };
       oh-my-zsh = {
         enable = true;
@@ -303,305 +480,7 @@ in
           export ARISTOTLE_API_KEY=$(cat $HOME/.aristotle-api-key)          
         fi
 
-        
-
-        _gwt_finish_worktree() {
-          local repo_root="$1"
-          local worktree_path="$2"
-
-          cd "$worktree_path" || { echo "❌ Failed to cd into $worktree_path"; return 1; }
-
-          _gwt_link_agent_dir "$repo_root" ".claude" settings.local.json
-          _gwt_link_agent_dir "$repo_root" ".codex" "*"
-          _gwt_link_agent_dir "$repo_root" ".pi" "*"
-
-          # Symlink shared setup files and directories
-          for f in CLAUDE.md AGENTS.md .envrc jhh; do
-            if [[ -e "$repo_root/$f" ]]; then
-              if [[ -e "$f" ]]; then
-                echo "⚠️  $f already exists in worktree (skipping)"
-              elif ln -s "$repo_root/$f" "$f"; then
-                echo "✓ Symlinked $f"
-              else
-                echo "❌ Failed to symlink $f"
-              fi
-            fi
-          done
-
-          # Copy cabal.project.local files (may be in nested directories)
-          while IFS= read -r -d "" cpl; do
-            local rel="''${cpl#$repo_root/}"
-            if [[ -e "$rel" ]]; then
-              echo "⚠️  $rel already exists in worktree (skipping)"
-            else
-              mkdir -p "$(dirname "$rel")"
-              if cp "$cpl" "$rel"; then
-                echo "✓ Copied $rel"
-              else
-                echo "❌ Failed to copy $rel"
-              fi
-            fi
-          done < <(find "$repo_root" -name "cabal.project.local" -not -path "*/dist-newstyle/*" -print0 2>/dev/null)
-
-          echo ""
-          echo "📁 Worktree: $(pwd)"
-          for f in .claude .claude/settings.local.json .codex .pi CLAUDE.md AGENTS.md .envrc jhh; do
-            [[ -e "$f" ]] && ls -la "$f" 2>&1 | sed 's/^/   /'
-          done
-          find . -name "cabal.project.local" -not -path "*/dist-newstyle/*" 2>/dev/null | while read -r f; do
-            ls -la "$f" 2>&1 | sed 's/^/   /'
-          done
-          echo ""
-
-          if [[ -f ".envrc" ]]; then
-            echo "🔧 Setting up direnv..."
-            direnv allow
-          fi
-        }
-
-        _gwt_existing_worktree_path() {
-          local branch="$1"
-          local worktree_path=""
-          local expected_branch="branch refs/heads/$branch"
-
-          while IFS= read -r line; do
-            if [[ "$line" == worktree\ * ]]; then
-              worktree_path="''${line#worktree }"
-            elif [[ "$line" == "$expected_branch" ]]; then
-              echo "$worktree_path"
-              return 0
-            fi
-          done < <(git worktree list --porcelain)
-
-          return 1
-        }
-
-        _gwt_pick_branch() {
-          local sep=$'\x1f'
-          local worktree_path=""
-          local branch=""
-          local remote_ref=""
-          local remote=""
-
-          {
-            while IFS= read -r line; do
-              if [[ "$line" == worktree\ * ]]; then
-                worktree_path="''${line#worktree }"
-              elif [[ "$line" == branch\ refs/heads/* ]]; then
-                branch="''${line#branch refs/heads/}"
-                printf "worktree%s%s%s%s%s%s%s\n" "$sep" "$branch" "$sep" "$branch" "$sep" "$sep" "$worktree_path"
-              fi
-            done < <(git worktree list --porcelain)
-
-            git for-each-ref --format="%(refname:short)" refs/heads | while IFS= read -r branch; do
-              if ! _gwt_existing_worktree_path "$branch" >/dev/null; then
-                printf "local%s%s%s%s%s\n" "$sep" "$branch" "$sep" "$branch" "$sep$sep"
-              fi
-            done
-
-            git for-each-ref --format="%(refname:short)" refs/remotes | while IFS= read -r remote_ref; do
-              [[ "$remote_ref" == */HEAD ]] && continue
-
-              remote="''${remote_ref%%/*}"
-              branch="''${remote_ref#*/}"
-
-              if ! _gwt_existing_worktree_path "$branch" >/dev/null; then
-                printf "remote%s%s%s%s%s%s%s\n" "$sep" "$remote_ref" "$sep" "$branch" "$sep" "$remote" "$sep"
-              fi
-            done
-          } | fzf \
-            --height=40% \
-            --reverse \
-            --prompt="gotree> " \
-            --delimiter="$sep" \
-            --with-nth=1,2,5
-        }
-
-        _gwt_link_agent_dir() {
-          local repo_root="$1"
-          local dir="$2"
-          shift 2
-
-          if [[ ! -e "$repo_root/$dir" ]]; then
-            return 0
-          fi
-
-          if [[ ! -e "$dir" ]]; then
-            if ln -s "$repo_root/$dir" "$dir"; then
-              echo "✓ Symlinked $dir"
-            else
-              echo "❌ Failed to symlink $dir"
-            fi
-            return 0
-          fi
-
-          if [[ -L "$dir" ]]; then
-            echo "⚠️  $dir already exists in worktree (skipping)"
-            return 0
-          fi
-
-          if [[ ! -d "$dir" || ! -d "$repo_root/$dir" ]]; then
-            echo "⚠️  $dir already exists in worktree (skipping)"
-            return 0
-          fi
-
-          # Some repos commit project files under agent config directories. In
-          # that case, keep the checked-out directory and share missing entries.
-          if [[ "$1" == "*" ]]; then
-            shift
-            set -- "$repo_root/$dir"/*(N) "$repo_root/$dir"/.[!.]*(N) "$repo_root/$dir"/..?*(N)
-          fi
-
-          for src in "$@"; do
-            local src_path="$src"
-            local f=""
-
-            if [[ "$src" == "$repo_root/$dir/"* ]]; then
-              [[ -e "$src_path" ]] || continue
-              f="''${src_path#$repo_root/$dir/}"
-            else
-              src_path="$repo_root/$dir/$src"
-              f="$src"
-            fi
-
-            if [[ -e "$src_path" ]]; then
-              if [[ -e "$dir/$f" ]]; then
-                echo "⚠️  $dir/$f already exists in worktree (skipping)"
-              elif ln -s "$src_path" "$dir/$f"; then
-                echo "✓ Symlinked $dir/$f"
-              else
-                echo "❌ Failed to symlink $dir/$f"
-              fi
-            fi
-          done
-        }
-
-        gotree() {
-          local input="$1"
-          local second_arg="$2"
-
-          if [[ -z "$input" ]]; then
-            if ! command -v fzf >/dev/null 2>&1; then
-              echo "Usage: gotree [branch-name] [base-branch-or-remote]"
-              echo "❌ fzf is not available for interactive branch selection"
-              return 1
-            fi
-
-            local selection
-            selection=$(_gwt_pick_branch) || return 1
-
-            local selection_kind selection_label selection_branch selection_remote selection_path
-            IFS=$'\x1f' read -r selection_kind selection_label selection_branch selection_remote selection_path <<< "$selection"
-
-            case "$selection_kind" in
-              worktree)
-                cd "$selection_path" || { echo "❌ Failed to cd into $selection_path"; return 1; }
-                echo ""
-                echo "📁 Worktree: $(pwd)"
-                return 0
-                ;;
-              local)
-                input="$selection_branch"
-                ;;
-              remote)
-                input="$selection_branch"
-                second_arg="$selection_remote"
-                ;;
-              *)
-                return 1
-                ;;
-            esac
-          fi
-
-          local branch="$input"
-          local base="''${second_arg:-main}"
-          local remote="origin"
-          local remote_requested=0
-
-          if [[ "$input" == */* ]]; then
-            local maybe_remote="''${input%%/*}"
-            local maybe_branch="''${input#*/}"
-            if git remote get-url "$maybe_remote" >/dev/null 2>&1; then
-              remote="$maybe_remote"
-              branch="$maybe_branch"
-              remote_requested=1
-            fi
-          fi
-
-          if [[ -n "$second_arg" ]] && git remote get-url "$second_arg" >/dev/null 2>&1; then
-            remote="$second_arg"
-            base="main"
-            remote_requested=1
-          fi
-
-          local repo_root=$(git rev-parse --show-toplevel)
-          local repo_name=$(basename "$repo_root")
-          local worktree_path="../''${repo_name}-''${branch}"
-          local remote_ref="''${remote}/''${branch}"
-          local local_ref="refs/heads/''${branch}"
-
-          local existing_worktree_path
-          if existing_worktree_path=$(_gwt_existing_worktree_path "$branch"); then
-            cd "$existing_worktree_path" || { echo "❌ Failed to cd into $existing_worktree_path"; return 1; }
-            echo ""
-            echo "📁 Worktree: $(pwd)"
-            return 0
-          fi
-
-          if git fetch "$remote" "refs/heads/''${branch}:refs/remotes/''${remote}/''${branch}" >/dev/null 2>&1; then
-            if git show-ref --verify --quiet "$local_ref"; then
-              local local_commit=$(git rev-parse "$local_ref")
-              local remote_commit=$(git rev-parse "$remote_ref")
-
-              if [[ "$local_commit" != "$remote_commit" ]]; then
-                if git merge-base --is-ancestor "$local_ref" "$remote_ref"; then
-                  if git branch -f "$branch" "$remote_ref" >/dev/null; then
-                    echo "✓ Fast-forwarded local branch '$branch' to '$remote_ref'"
-                  else
-                    echo "❌ Failed to update local branch '$branch'"
-                    return 1
-                  fi
-                else
-                  echo "❌ Local branch '$branch' is not a fast-forward of '$remote_ref'"
-                  echo "   Local:  $(git rev-parse --short "$local_ref")"
-                  echo "   Remote: $(git rev-parse --short "$remote_ref")"
-                  return 1
-                fi
-              fi
-
-              git branch --set-upstream-to="$remote_ref" "$branch" >/dev/null 2>&1
-
-              if git worktree add "$worktree_path" "$branch"; then
-                echo "✓ Created worktree for '$branch' at '$remote_ref'"
-              else
-                echo "❌ Failed to create worktree for '$branch'"
-                return 1
-              fi
-            elif git worktree add "$worktree_path" -b "$branch" "$remote_ref"; then
-              if git branch --set-upstream-to="$remote_ref" "$branch" >/dev/null; then
-                echo "✓ Created worktree for remote branch '$remote_ref'"
-              else
-                echo "❌ Failed to set upstream for '$branch' to '$remote_ref'"
-                return 1
-              fi
-            else
-              echo "❌ Failed to create worktree for remote branch '$remote_ref'"
-              return 1
-            fi
-          elif [[ "$remote_requested" -eq 1 ]]; then
-            echo "❌ Failed to fetch '$branch' from '$remote'"
-            return 1
-          elif git worktree add "$worktree_path" -b "$branch" "$base" 2>/dev/null; then
-            echo "✓ Created worktree with new branch '$branch' from '$base'"
-          elif git worktree add "$worktree_path" "$branch"; then
-            echo "✓ Created worktree for existing branch '$branch'"
-          else
-            echo "❌ Failed to create worktree"
-            return 1
-          fi
-
-          _gwt_finish_worktree "$repo_root" "$worktree_path"
-        }
+        eval "$(wt config shell init zsh)"
         '';
     };
 
@@ -625,6 +504,7 @@ in
         ".AppleDouble"
         ".LSOverride"
         ".direnv"
+        "/.scratch/"
         "*.niu"
         ".local"
         "jhh"

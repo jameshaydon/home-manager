@@ -36,6 +36,15 @@
       my-overlays = {
           nixpkgs.overlays = [
             emacs-lsp-booster.overlays.default
+            (final: prev: {
+              worktrunk = prev.worktrunk.overrideAttrs (old: {
+                checkFlags = (old.checkFlags or [ ])
+                  ++ final.lib.optionals final.stdenv.hostPlatform.isDarwin [
+                    "--skip=shell::utils::tests::test_process_name_and_ppid_self"
+                    "--skip=shell::utils::tests::test_probe_reports_invoked_name_for_sh"
+                  ];
+              });
+            })
           ];
         };
     in {

@@ -56,6 +56,7 @@ and safe to apply the local-machine config.
   `shellAliases`, `oh-my-zsh`, and `initContent`.
 - Git defaults live under `programs.git`; changes there affect every repo on the
   machine.
-- The `gotree` shell helper in `home.nix` intentionally shares files such as
-  `AGENTS.md`, `CLAUDE.md`, `.envrc`, and `.claude` into worktrees. Keep that
-  behavior in mind when changing agent or worktree setup.
+- Worktrunk is installed and shell-integrated in `home.nix`. The
+  `wt-link-primary` helper lets project-local Worktrunk hooks safely share
+  canonical files and missing agent-config entries without replacing tracked
+  paths.
