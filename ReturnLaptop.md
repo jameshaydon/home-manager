@@ -11,7 +11,8 @@ Obsidian, and iTerm2, with its Nix inputs pinned in `flake.lock`.
 
 The Homebrew inventory, application reinstall list, and relevant macOS, iTerm2,
 Maccy, Dock, input-source, keyboard-shortcut, and font preferences are now
-captured in this repository. The remaining reproducibility gaps are:
+captured in this repository and committed locally as `4d8d393`. That commit has
+not yet been pushed. The remaining reproducibility gaps are:
 
 1. Codex, Claude, Gemini, and Pi configuration is only partly tracked.
 2. Credentials need a deliberate secure migration or re-authentication plan.
@@ -44,12 +45,12 @@ Current retention decisions are:
 
 ### Home Manager
 
-The repository is on `main`, and its current commit matches its locally recorded
-`origin/main`, but the working tree is not clean. `AGENTS.md`, `README.md`,
-`flake.lock`, `flake.nix`, and `home.nix` are modified. The untracked entries
-include `.claude/`, `GOTREE_WORKFLOW_RESEARCH.md`, this file, and the `result`
-build symlink. Review and commit the intended configuration and documentation,
-then push it before erasing the laptop.
+The repository is on `main`. Local `main` is ahead of its locally recorded
+`origin/main` and has not been pushed, and the working tree is not clean.
+`AGENTS.md`, `README.md`, `flake.lock`, `flake.nix`, and `home.nix` are modified.
+The untracked entries include `.claude/`, `GOTREE_WORKFLOW_RESEARCH.md`, and the
+`result` build symlink. Review and commit the intended configuration and
+documentation, then push the repository before erasing the laptop.
 
 `flake.lock` pins nixpkgs, Home Manager, Emacs LSP Booster, Google Workspace CLI,
 and the Claude, Codex, and Pi ACP integrations. `home.nix` declares:
@@ -84,8 +85,9 @@ and pushed; the clean local `main` and live `origin/main` refs match that commit
 
 ### 1. Homebrew
 
-**Capture status: complete.** `Brewfile` records the live Homebrew inventory
-verified on 2026-08-15. The explicitly installed formulae are:
+**Capture status: complete and committed locally as `4d8d393`.** `Brewfile`
+records the live Homebrew inventory verified on 2026-08-15. The explicitly
+installed formulae are:
 
 - `cmake`
 - `gcc`
@@ -407,9 +409,10 @@ is explicitly revised:
    encrypted archive or password manager.
 6. Open Firefox, run **Sync now**, and verify the restored account on another
    device.
-7. **Complete:** the Brewfile and application reinstall list are recorded, and
-   stable macOS/Maccy defaults plus manual iTerm2, input-source, Dock, protected
-   permission, and font settings are captured.
+7. **Complete and committed locally as `4d8d393`:** the Brewfile and application
+   reinstall list are recorded, and stable macOS/Maccy defaults plus manual
+   iTerm2, input-source, Dock, protected permission, and font settings are
+   captured. The commit still needs to be pushed with the rest of the repository.
 8. Restore and test representative data and configuration on the replacement
    Mac before returning or erasing this one.
 
@@ -425,7 +428,8 @@ Do not factory-reset the laptop until every applicable item below is complete:
 - [x] Doom and personal agent configuration is committed, pushed, and verified
       against the live remote refs.
 - [x] The Homebrew inventory, application reinstall list, and relevant macOS and
-      application preferences are captured.
+      application preferences are captured and committed locally as `4d8d393`;
+      the repository still needs to be pushed.
 - [ ] Home Manager configuration is committed and pushed.
 - [x] Google Drive reports no pending work and every retained folder is fully
       synced.
