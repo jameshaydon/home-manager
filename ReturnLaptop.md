@@ -61,11 +61,11 @@ No accounts have been signed out, and the laptop has not been erased.
 
 ### Home Manager
 
-**Git synchronization status: complete.** The repository is on `main` at
-`6d4f06a`, and that commit matches its locally recorded `origin/main`. The
-intended Home Manager configuration and documentation changes have been reviewed,
-committed, and pushed. The remaining untracked `.claude/` directory and `result`
-build symlink are outside the completed Home Manager configuration sync.
+**Git synchronization status: complete.** The audited Home Manager configuration
+was committed as `6d4f06a` and pushed. This checklist was subsequently updated
+and pushed after the pre-return preservation work completed. The remaining
+untracked `.claude/` directory and `result` build symlink are outside the
+completed Home Manager configuration sync.
 
 `flake.lock` pins nixpkgs, Home Manager, Emacs LSP Booster, Google Workspace CLI,
 and the Claude, Codex, and Pi ACP integrations. `home.nix` declares:
