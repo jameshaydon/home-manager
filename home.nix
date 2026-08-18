@@ -232,6 +232,7 @@ in
     #   echo "Hello, ${config.home.username}!"
     # '')
 
+    pkgs.age
     pkgs.just
     pkgs.fd
     pkgs.delta

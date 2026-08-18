@@ -1,7 +1,7 @@
 # Returning This Laptop
 
 Initial audit: 2026-07-12
-Updated: 2026-08-15
+Updated: 2026-08-17
 
 ## Summary
 
@@ -12,12 +12,11 @@ Obsidian, and iTerm2, with its Nix inputs pinned in `flake.lock`.
 The Homebrew inventory, application reinstall list, and relevant macOS, iTerm2,
 Maccy, Dock, input-source, keyboard-shortcut, and font preferences are now
 captured in this repository, committed as `4d8d393`, and pushed to `origin/main`.
-The remaining reproducibility gaps are:
-
-1. Codex, Claude, Gemini, and Pi configuration is only partly tracked.
-2. Credentials need a deliberate secure migration or re-authentication plan.
-3. Protected macOS permissions and the captured environment still need to be
-   restored and verified on the replacement Mac.
+The only work still blocking erasure is listed in
+[Remaining pre-return TODO](#remaining-pre-return-todo). Protected macOS
+permissions and reproduction of the captured environment must be verified later,
+when the replacement Mac is available; those checks do not block returning this
+laptop.
 
 The `~/dev` review is complete. Retained personal repositories and worktree
 branches were committed, pushed, and checked against live GitHub refs; loose
@@ -25,10 +24,10 @@ files, third-party checkouts, local-only branches, and generated output were
 also reviewed and either dealt with or explicitly accepted as disposable.
 Nothing under `~/dev` needs to be copied before wiping this laptop.
 
-The Desktop, Downloads, development tree, and Google Drive synchronization are
-complete. The only remaining local data to preserve is `~/Pictures`, principally
-the Photos library. Durable configuration and credentials still need to be
-preserved and verified as applicable.
+The Desktop, Downloads, development tree, Google Drive synchronization and
+restore check, and preservation of `~/Pictures` are complete. Durable
+Codex, Claude, and Pi configuration plus shell histories still need to be
+preserved. The restored Photos library has been opened and tested successfully.
 
 Current retention decisions are:
 
@@ -39,18 +38,32 @@ Current retention decisions are:
 - preserve `~/Pictures`; other local data folders, including `~/media`, are
   explicitly disposable;
 - use Firefox Sync for browser migration; do not prepare Chrome profile backups;
+- do not preserve Python configuration, any API keys, the SpecForge licence,
+  Gemini or Aider configuration, VS Code settings, Imiron-specific CLI state, or
+  the two manually installed fonts;
 - do not preserve Docker or Signal state.
+
+## Remaining pre-return TODO
+
+These are the only tasks that still block signing out and erasing this laptop:
+
+- [ ] Preserve the stable Codex, Claude, and Pi configuration identified below.
+- [ ] Securely preserve `~/.zsh_history` and `~/.bash_history`.
+- [ ] Decide whether the SSH private key and configuration should move, then
+      preserve them securely or explicitly accept them as disposable.
+
+Everything else is complete, explicitly disposable, or deferred until the
+replacement Mac is available.
 
 ## Already reproducible
 
 ### Home Manager
 
-The repository is on `main`, and its current commit matches its locally recorded
-`origin/main`, but the working tree is not clean. `AGENTS.md`, `README.md`,
-`flake.lock`, `flake.nix`, and `home.nix` are modified. The untracked entries
-include `.claude/`, `GOTREE_WORKFLOW_RESEARCH.md`, and the `result` build symlink.
-Review and commit the intended configuration and documentation, then push the
-repository before erasing the laptop.
+**Git synchronization status: complete.** The repository is on `main` at
+`6d4f06a`, and that commit matches its locally recorded `origin/main`. The
+intended Home Manager configuration and documentation changes have been reviewed,
+committed, and pushed. The remaining untracked `.claude/` directory and `result`
+build symlink are outside the completed Home Manager configuration sync.
 
 `flake.lock` pins nixpkgs, Home Manager, Emacs LSP Booster, Google Workspace CLI,
 and the Claude, Codex, and Pi ACP integrations. `home.nix` declares:
@@ -144,7 +157,10 @@ Install the latest Doom Emacs on the new Mac rather than preserving the current
 The Lilo mode integration expects Specforge to be cloned at
 `~/dev/imiron-io/specforge`. This is an intentional optional integration.
 
-### 4. Codex and other agent configuration
+### 4. Codex, Claude, and Pi configuration
+
+**Status: important pre-return TODO.** Preserve the stable configuration for
+Codex, Claude, and Pi, but not their authentication or generated state.
 
 `~/.codex` is not version-controlled and mixes durable preferences with roughly
 2 GB of generated and sensitive state.
@@ -160,21 +176,26 @@ theme and keymaps, plugin enablement, desktop preferences, and privacy/history
 settings. The same file also contains brittle absolute paths, app-version hashes,
 cache locations, timestamps, and project trust entries.
 
-Do not commit the whole `~/.codex` directory. Instead, manage the stable files
-or stable fragments through Home Manager. Leave authentication, histories,
-sessions, SQLite databases, logs, caches, installation IDs, and downloaded
-plugins outside Git. If histories or memories need to move, include them in an
-encrypted backup.
+Do not commit the whole `~/.codex` directory. Preserve `AGENTS.md`,
+`default.rules`, and a curated `config.toml` restore template containing only
+stable preferences. Leave authentication, project trust entries, brittle paths,
+histories, sessions, SQLite databases, logs, caches, installation IDs, and
+downloaded plugins outside Git.
 
-Other durable machine-local preferences worth managing are:
+Preserve these Claude files and record the enabled plugin identifiers without
+copying generated plugin installation state:
 
 - `~/.claude/settings.json`
 - `~/.claude/keybindings.json`
-- Claude plugin installation metadata
-- `~/.gemini/settings.json`
+
+Preserve these Pi files:
+
 - `~/.pi/agent/settings.json`
 - `~/.pi/agent/keybindings.json`
-- `~/.aider.conf.yml`
+
+Do not preserve Gemini or Aider configuration. Re-authenticate Codex, Claude,
+and Pi on the replacement Mac instead of copying their token or authentication
+files.
 
 `~/.agents` is clean and synchronized at `a9cad97`. The updated and newly added
 personal skills, including `close-out-pr`, `create-pr`, the SpecForge release
@@ -190,10 +211,10 @@ failed records for passwords, bookmarks, add-ons, history, open tabs, settings,
 addresses, payment methods, and extension storage. Older error entries were
 temporary DNS failures and recovered successfully.
 
-Before erasing, open Firefox, use **Settings -> Sync -> Sync now**, and confirm
-that Sync remains enabled for every desired data category. Then sign in on the
-replacement device and verify representative bookmarks, passwords, history,
-add-ons, and settings. Mozilla documents the synchronized categories in
+The final pre-erasure **Sync now** was completed on 2026-08-17. When the
+replacement device is available, sign in to the Mozilla account and verify
+representative bookmarks, passwords, history, add-ons, and settings. Mozilla
+documents the synchronized categories in
 [Sync Firefox data](https://support.mozilla.org/en-US/kb/sync).
 
 The two other local Firefox profiles are not signed in and appear to be unused
@@ -223,34 +244,35 @@ sync, Dock contents, and similar protected settings should be a manual checklist
 
 ### 6. Fonts
 
-Iosevka is covered by Homebrew. These user-installed fonts are not tracked:
+**Status: complete; no migration TODO.** Iosevka, the only font being retained,
+is covered by the `font-iosevka` cask in `Brewfile`. These other user-installed
+fonts are explicitly disposable:
 
 - `NFM.ttf`
 - `NotoSansJP-VariableFont_wght.ttf`
 
-Prefer a Nix or Homebrew font package where available. Otherwise place the font
-files in a private backup and declare their installation through Home Manager.
-
 ### 7. Credentials
 
-Credentials should be re-created or transferred securely, never committed to
-this repository. Relevant state includes:
+Do not preserve any API keys. The existing top-level files are:
 
-- the SSH private key and `~/.ssh/config`;
-- API keys currently stored as top-level dotfiles;
-- Codex, Claude, Gemini, and Pi authentication;
-- GitHub CLI, Google Cloud, Google Workspace CLI, and rclone credentials;
-- the Specforge licence and `.pypirc`.
+- `~/.anthropic-api-key`
+- `~/.openai-api-key`
+- `~/.openrouter-api-key`
+- `~/.gemini-api-key`
+- `~/.aristotle-api-key`
 
-GitHub CLI authentication was working on 2026-08-14. Expect to authenticate it
-again on the replacement machine rather than copying its opaque token state.
+Do not preserve the SpecForge licence or `.pypirc`. The latter contains only
+commented notes for the old Imiron Python package repository, not active Python
+package settings or credentials. No Python configuration needs to move.
 
-The API-key files and `.pypirc` currently have `0644` permissions. Change them
-to `0600`, or preferably move secrets into the macOS Keychain, a password
-manager, or an encrypted age/sops-managed store.
+Do not copy CLI authentication state. The GitHub CLI token is already invalid;
+run `gh auth login -h github.com` on the replacement Mac. The Google Cloud and
+Google Workspace CLI configurations point to the Imiron account and project,
+and the only rclone remote is `gdrive-imiron:`; all are disposable.
 
-Opaque application token databases should normally not be copied. Re-authenticate
-on the new machine unless a service has no practical recovery path.
+The only remaining credential decision is whether to preserve the current
+`~/.ssh/id_ed25519` private key and `~/.ssh/config`. The `known_hosts` files are
+regenerable and do not need to move.
 
 ## Data migration plan
 
@@ -258,10 +280,8 @@ on the new machine unless a service has no practical recovery path.
 
 **Synchronization status: complete.** Google Drive for desktop is active for
 the personal account. `~/tuvok` and every other retained folder report fully
-synced.
-
-Before erasing, verify that the retained folders are visible under **Computers**
-at drive.google.com and restore representative files successfully.
+synced. The retained folders are visible under **Computers** at drive.google.com,
+and representative files have been restored successfully.
 
 ### Desktop
 
@@ -324,7 +344,7 @@ are explicitly disposable:
 | --- | ---: | --- | --- |
 | `~/Documents` | 15 MiB | MATLAB example and generated-code material | Disposable; no copy required. |
 | `~/Downloads` | negligible | Only `.DS_Store` and `.localized` remain | Complete; wanted files were preserved in Google Drive and the remainder was deleted. |
-| `~/Pictures` | 2.0 GiB | Almost entirely `Photos Library.photoslibrary` | Quit Photos, preserve the complete library package, and test opening the restored copy. |
+| `~/Pictures` | 2.0 GiB | Almost entirely `Photos Library.photoslibrary` | Preservation and restored-library opening verified. |
 | `~/Movies` | 1.3 GiB | One video in the TV library | Disposable; no copy required. |
 | `~/Music` | less than 1 MiB | Music library databases; no substantial media | Disposable; no copy required. |
 | `~/Public` | 627 MiB | One television episode | Disposable; no copy required. |
@@ -366,12 +386,15 @@ preserved. No physical-disk copy is required before erasing the laptop.
 
 ### Durable configuration and credentials
 
-Preserve the small durable configuration identified elsewhere in this document,
-including selected Codex/Claude/Gemini/Pi settings and histories, VS Code user
-settings, iTerm2 and Maccy preferences, fonts, shell histories, SSH configuration,
-and CLI credentials. Store API keys, SSH private keys, `.pypirc`, and other
-secrets only in an encrypted archive or password manager, never as plaintext in
-Google Drive.
+Preserve the stable Codex, Claude, and Pi configuration identified above. Also
+preserve `~/.zsh_history` and `~/.bash_history`; the zsh history has four lines
+matching possible secret-related patterns, so the histories must use an encrypted
+archive or password manager rather than plaintext Google Drive.
+
+Do not preserve Python or VS Code configuration, Gemini or Aider configuration,
+API keys, the SpecForge licence, `.pypirc`, agent authentication databases,
+Imiron CLI credentials, or the two untracked fonts. The SSH private key and
+configuration remain an explicit decision.
 
 ## Intentionally disposable state
 
@@ -389,36 +412,44 @@ is explicitly revised:
 - the current `~/.emacs.d` checkout and generated state; reinstall Doom Emacs
   and run `doom sync` using the preserved `~/.doom.d` configuration;
 - downloaded application caches, installers, and reproducible speech models;
+- all API-key files, the SpecForge licence, `.pypirc`, and Python configuration;
+- Gemini, Aider, and VS Code configuration;
+- GitHub CLI token state and the Imiron Google Cloud, Google Workspace CLI, and
+  rclone state;
+- `NFM.ttf` and `NotoSansJP-VariableFont_wght.ttf`;
 - `~/Documents`, `~/Movies`, `~/Music`, `~/Public`, and `~/media`;
 - Chrome profile data, because Firefox Sync is the chosen browser migration
   mechanism.
 
 ## Recommended order of work
 
-1. Review, commit, push, and fresh-clone the Home Manager repository. **Complete
-   for Doom and personal agents:** both repositories are clean, pushed, and
-   verified against their live remote refs.
+1. **Complete:** the Home Manager repository was reviewed, committed, and pushed;
+   its current commit matches `origin/main`. Doom and personal agents are also
+   clean, pushed, and verified against their live remote refs.
 2. **Complete:** `~/dev` has been fully reviewed; retained work was pushed and
    live-verified, and the remainder was explicitly dealt with or accepted as
    disposable.
 3. **Complete:** `~/Desktop` and `~/Downloads` have been fully reviewed and
    dealt with, and every retained Google Drive folder reports fully synced.
-4. Verify retained Google Drive folders and representative restored files;
-   preserve `~/Pictures`, then open the restored Photos library successfully.
-5. Preserve durable application and agent configuration, with credentials in an
-   encrypted archive or password manager.
-6. Open Firefox, run **Sync now**, and verify the restored account on another
-   device.
+4. **Complete:** retained Google Drive folders and representative restored files
+   were verified, `~/Pictures` was preserved, and the restored Photos library
+   opened successfully.
+5. Complete every item in
+   [Remaining pre-return TODO](#remaining-pre-return-todo).
+6. **Final sync complete:** Firefox completed **Sync now** on 2026-08-17. Verify
+   the restored account when the replacement device becomes available.
 7. **Complete, committed as `4d8d393`, and pushed:** the Brewfile and application
    reinstall list are recorded, and stable macOS/Maccy defaults plus manual
    iTerm2, input-source, Dock, protected permission, and font settings are
    captured.
-8. Restore and test representative data and configuration on the replacement
-   Mac before returning or erasing this one.
+8. **Deferred:** restore and test representative data and configuration when the
+   replacement Mac becomes available.
 
 ## Completion criterion
 
-Do not factory-reset the laptop until every applicable item below is complete:
+Do not factory-reset the laptop until every applicable pre-return item below is
+complete. Items explicitly deferred until the replacement Mac is available are
+post-return verification and do not block erasing this laptop:
 
 - [x] `~/dev` is fully reviewed and safe to erase; retained Git work was pushed
       and verified by remote inspection, and all other contents were dealt with.
@@ -429,20 +460,28 @@ Do not factory-reset the laptop until every applicable item below is complete:
       against the live remote refs.
 - [x] The Homebrew inventory, application reinstall list, and relevant macOS and
       application preferences are captured, committed as `4d8d393`, and pushed.
-- [ ] Home Manager configuration is committed and pushed.
+- [x] Home Manager configuration is committed and pushed.
 - [x] Google Drive reports no pending work and every retained folder is fully
       synced.
-- [ ] Retained Google Drive folders are visible under **Computers**, and
+- [x] Retained Google Drive folders are visible under **Computers**, and
       representative files have been restored successfully.
-- [x] All local data apart from `~/Pictures`, including `~/media`, is explicitly
-      disposable and requires no migration.
-- [ ] The Photos library opens from its restored copy.
-- [ ] Firefox has completed a final **Sync now**, and the replacement device
-      shows bookmarks, passwords, history, add-ons, and settings.
-- [ ] Encrypted credentials and durable local application configuration have
-      been restored or their re-authentication path has been tested.
-- [ ] The replacement Mac can reproduce the shell, Git, Emacs, agent, and
-      desktop environment from the preserved configuration.
+- [x] `~/Pictures` has been preserved, and all other local data, including
+      `~/media`, is either already retained or explicitly disposable.
+- [x] The Photos library opens from its restored copy.
+- [x] Firefox has completed a final **Sync now**.
+- [x] Python configuration, all API keys, the SpecForge licence, `.pypirc`,
+      Gemini, Aider, VS Code, Imiron CLI state, and the two untracked fonts are
+      explicitly disposable.
 
-Only after these checks pass should accounts and licensed applications be signed
-out and **Erase All Content and Settings** be used.
+The only unfinished pre-return blockers are maintained in
+[Remaining pre-return TODO](#remaining-pre-return-todo). The following checks are
+deferred and do not block erasure:
+
+- [ ] The replacement device shows Firefox bookmarks, passwords, history,
+      add-ons, and settings. This is deferred until the device is available.
+- [ ] The replacement Mac can reproduce the shell, Git, Emacs, agent, and
+      desktop environment from the preserved configuration. This is deferred
+      until the replacement Mac is available.
+
+Only after the applicable pre-return checks pass should accounts and licensed
+applications be signed out and **Erase All Content and Settings** be used.
