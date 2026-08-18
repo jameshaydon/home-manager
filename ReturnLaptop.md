@@ -1,7 +1,7 @@
 # Returning This Laptop
 
 Initial audit: 2026-07-12
-Updated: 2026-08-17
+Updated: 2026-08-18
 
 ## Summary
 
@@ -12,11 +12,10 @@ Obsidian, and iTerm2, with its Nix inputs pinned in `flake.lock`.
 The Homebrew inventory, application reinstall list, and relevant macOS, iTerm2,
 Maccy, Dock, input-source, keyboard-shortcut, and font preferences are now
 captured in this repository, committed as `4d8d393`, and pushed to `origin/main`.
-The only work still blocking erasure is listed in
-[Remaining pre-return TODO](#remaining-pre-return-todo). Protected macOS
-permissions and reproduction of the captured environment must be verified later,
-when the replacement Mac is available; those checks do not block returning this
-laptop.
+All pre-return preservation work that blocks erasure is complete. Protected
+macOS permissions and reproduction of the captured environment must be verified
+later, when the replacement Mac is available; those checks do not block
+returning this laptop.
 
 The `~/dev` review is complete. Retained personal repositories and worktree
 branches were committed, pushed, and checked against live GitHub refs; loose
@@ -25,9 +24,9 @@ also reviewed and either dealt with or explicitly accepted as disposable.
 Nothing under `~/dev` needs to be copied before wiping this laptop.
 
 The Desktop, Downloads, development tree, Google Drive synchronization and
-restore check, and preservation of `~/Pictures` are complete. Durable
-Codex, Claude, and Pi configuration plus shell histories still need to be
-preserved. The restored Photos library has been opened and tested successfully.
+restore check, preservation of `~/Pictures`, durable Codex, Claude, Pi, and SSH
+configuration, and encrypted shell histories are complete. The restored Photos
+library has been opened and tested successfully.
 
 Current retention decisions are:
 
@@ -45,15 +44,18 @@ Current retention decisions are:
 
 ## Remaining pre-return TODO
 
-These are the only tasks that still block signing out and erasing this laptop:
+All pre-return tasks in this section are complete:
 
-- [ ] Preserve the stable Codex, Claude, and Pi configuration identified below.
-- [ ] Securely preserve `~/.zsh_history` and `~/.bash_history`.
-- [ ] Decide whether the SSH private key and configuration should move, then
+- [x] Preserve the stable Codex, Claude, and Pi configuration identified below.
+- [x] Securely preserve `~/.zsh_history` and `~/.bash_history`.
+- [x] Decide whether the SSH private key and configuration should move, then
       preserve them securely or explicitly accept them as disposable.
 
-Everything else is complete, explicitly disposable, or deferred until the
-replacement Mac is available.
+The curated configuration, restore notes, checksums, and encrypted history
+archive are stored in personal Google Drive at
+`My Drive/home/pre-return-2026-08-18`. The existing passphrase-protected SSH
+private key remains at `My Drive/home/.ssh/id_ed25519`; it was not copied again.
+No accounts have been signed out, and the laptop has not been erased.
 
 ## Already reproducible
 
@@ -159,8 +161,9 @@ The Lilo mode integration expects Specforge to be cloned at
 
 ### 4. Codex, Claude, and Pi configuration
 
-**Status: important pre-return TODO.** Preserve the stable configuration for
-Codex, Claude, and Pi, but not their authentication or generated state.
+**Status: complete.** Stable Codex, Claude, and Pi configuration is preserved in
+personal Google Drive at `My Drive/home/pre-return-2026-08-18/agent-config`,
+without authentication or generated state.
 
 `~/.codex` is not version-controlled and mixes durable preferences with roughly
 2 GB of generated and sensitive state.
@@ -176,11 +179,11 @@ theme and keymaps, plugin enablement, desktop preferences, and privacy/history
 settings. The same file also contains brittle absolute paths, app-version hashes,
 cache locations, timestamps, and project trust entries.
 
-Do not commit the whole `~/.codex` directory. Preserve `AGENTS.md`,
-`default.rules`, and a curated `config.toml` restore template containing only
-stable preferences. Leave authentication, project trust entries, brittle paths,
-histories, sessions, SQLite databases, logs, caches, installation IDs, and
-downloaded plugins outside Git.
+The preservation set contains exact copies of `AGENTS.md` and `default.rules`
+plus a curated `config.toml` restore template containing only stable preferences.
+Authentication, project trust entries, brittle paths, histories, sessions,
+SQLite databases, logs, caches, installation IDs, generated MCP definitions,
+and downloaded plugins were not copied.
 
 Preserve these Claude files and record the enabled plugin identifiers without
 copying generated plugin installation state:
@@ -192,6 +195,12 @@ Preserve these Pi files:
 
 - `~/.pi/agent/settings.json`
 - `~/.pi/agent/keybindings.json`
+
+The Claude restore template omits trusted workspace paths but retains the
+enabled plugin identifiers and the marketplace source needed by
+`codex@openai-codex`. The Pi settings template omits the generated
+`lastChangelogVersion`. `MANIFEST.sha256` was checked successfully against every
+saved configuration file and the encrypted history archive on 2026-08-18.
 
 Do not preserve Gemini or Aider configuration. Re-authenticate Codex, Claude,
 and Pi on the replacement Mac instead of copying their token or authentication
@@ -270,9 +279,14 @@ run `gh auth login -h github.com` on the replacement Mac. The Google Cloud and
 Google Workspace CLI configurations point to the Imiron account and project,
 and the only rclone remote is `gdrive-imiron:`; all are disposable.
 
-The only remaining credential decision is whether to preserve the current
-`~/.ssh/id_ed25519` private key and `~/.ssh/config`. The `known_hosts` files are
-regenerable and do not need to move.
+**SSH decision: complete.** Retain the current `~/.ssh/id_ed25519` key for
+migration, then rotate it after the replacement Mac is working. The private key
+is passphrase-protected, its passphrase was tested successfully, and its public
+key remains registered on GitHub. A byte-identical keypair was already present
+at `My Drive/home/.ssh`, so no additional private-key copy was made. The current
+SSH config is preserved at
+`My Drive/home/pre-return-2026-08-18/agent-config/ssh/config`. The `known_hosts`
+files are regenerable and were not preserved as part of this work.
 
 ## Data migration plan
 
@@ -307,7 +321,8 @@ Google Drive` and byte-verified against their source files:
 
 An exact-content comparison found personal Drive copies of the Desktop CV,
 three employment letters or certificates, the old Japan passport package, the
-Shinsei statement CSV, `2025-11-19 cleanup/index.html`, and the old SSH keypair.
+Shinsei statement CSV, `2025-11-19 cleanup/index.html`, and the current
+passphrase-protected SSH keypair.
 The two files inside the old shipment ZIP are also byte-identical to the receipt
 and label already in the preservation folder. `new-flat.md` has been deliberately
 distilled into `tuvok/wiki/Resources/japan-flat-application-notes.md` in Drive.
@@ -332,8 +347,9 @@ files, the long-named process-diagram PNG, and `task_component.proto`. Do not
 copy these.
 
 Do not put `2025-11-19 cleanup/dotfiles` or `ptor` into ordinary Drive storage:
-they contain plaintext credentials. The old SSH private key already has an exact
-unencrypted copy in personal Drive; rotate and remove it if it is still active.
+they contain plaintext credentials. The current SSH private key already has an
+exact passphrase-protected copy in personal Drive. Retain it for migration, then
+rotate and remove it after the replacement Mac is working.
 
 ### Other standard folders
 
@@ -386,15 +402,17 @@ preserved. No physical-disk copy is required before erasing the laptop.
 
 ### Durable configuration and credentials
 
-Preserve the stable Codex, Claude, and Pi configuration identified above. Also
-preserve `~/.zsh_history` and `~/.bash_history`; the zsh history has four lines
-matching possible secret-related patterns, so the histories must use an encrypted
-archive or password manager rather than plaintext Google Drive.
+**Status: complete.** The stable Codex, Claude, Pi, and SSH configuration is in
+`My Drive/home/pre-return-2026-08-18/agent-config`. The zsh and bash histories
+are in `shell-histories-2026-08-18.tar.age` in the parent directory, encrypted
+with `age` to the retained SSH key. The archive was decrypted using the
+passphrase-protected private key, and both histories matched their recorded
+SHA-256 checksums. The two older plaintext history files were removed from
+`My Drive/home` and moved to recoverable Google Drive Trash.
 
 Do not preserve Python or VS Code configuration, Gemini or Aider configuration,
 API keys, the SpecForge licence, `.pypirc`, agent authentication databases,
-Imiron CLI credentials, or the two untracked fonts. The SSH private key and
-configuration remain an explicit decision.
+Imiron CLI credentials, or the two untracked fonts.
 
 ## Intentionally disposable state
 
@@ -434,8 +452,9 @@ is explicitly revised:
 4. **Complete:** retained Google Drive folders and representative restored files
    were verified, `~/Pictures` was preserved, and the restored Photos library
    opened successfully.
-5. Complete every item in
-   [Remaining pre-return TODO](#remaining-pre-return-todo).
+5. **Complete:** every item in
+   [Remaining pre-return TODO](#remaining-pre-return-todo) is preserved and
+   verified.
 6. **Final sync complete:** Firefox completed **Sync now** on 2026-08-17. Verify
    the restored account when the replacement device becomes available.
 7. **Complete, committed as `4d8d393`, and pushed:** the Brewfile and application
@@ -472,10 +491,15 @@ post-return verification and do not block erasing this laptop:
 - [x] Python configuration, all API keys, the SpecForge licence, `.pypirc`,
       Gemini, Aider, VS Code, Imiron CLI state, and the two untracked fonts are
       explicitly disposable.
+- [x] Stable Codex, Claude, Pi, and SSH configuration is preserved in personal
+      Google Drive without authentication or generated state.
+- [x] The zsh and bash histories are encrypted to the retained SSH key, and a
+      full decryption plus checksum verification succeeded.
+- [x] The passphrase-protected SSH key is preserved, its passphrase works, and
+      its current configuration is included in the restore templates.
 
-The only unfinished pre-return blockers are maintained in
-[Remaining pre-return TODO](#remaining-pre-return-todo). The following checks are
-deferred and do not block erasure:
+There are no unfinished pre-return preservation blockers. The following checks
+are deferred and do not block erasure:
 
 - [ ] The replacement device shows Firefox bookmarks, passwords, history,
       add-ons, and settings. This is deferred until the device is available.
