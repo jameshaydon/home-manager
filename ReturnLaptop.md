@@ -53,7 +53,10 @@ All pre-return tasks in this section are complete:
 
 The curated configuration, restore notes, checksums, and encrypted history
 archive are stored in personal Google Drive at
-`My Drive/home/pre-return-2026-08-18`. The existing passphrase-protected SSH
+`My Drive/home/pre-return-2026-08-18`. Detailed restoration commands are in the
+[preservation README in Google Drive](https://drive.google.com/drive/my-drive) at
+`My Drive/home/pre-return-2026-08-18/README.md`; a copy of this checklist is
+stored beside it as `ReturnLaptop.md`. The existing passphrase-protected SSH
 private key remains at `My Drive/home/.ssh/id_ed25519`; it was not copied again.
 No accounts have been signed out, and the laptop has not been erased.
 
